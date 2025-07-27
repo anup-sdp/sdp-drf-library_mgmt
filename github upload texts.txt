@@ -5,3 +5,11 @@ git branch -M main
 git remote add origin https://github.com/anup-sdp/sdp-drf-library_mgmt.git
 git push -u origin main
 
+-------------
+git branch  --(show current branch)
+git branch practice-22.5  --(create new branch)
+git checkout practice-22.5 --(make it active branch)
+
+git add .
+git commit -m "for module 22.5"
+git push -u origin midterm

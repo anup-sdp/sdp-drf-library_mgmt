@@ -1,3 +1,4 @@
+# project for practice module 22.5, sdp, phitron.
 """
 Django settings for library_management project.
 
