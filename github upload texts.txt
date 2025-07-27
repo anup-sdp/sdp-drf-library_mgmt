@@ -13,3 +13,7 @@ git checkout practice-22.5 --(make it active branch)
 git add .
 git commit -m "for module 22.5"
 git push -u origin midterm
+----
+git merge practice-22.5
+git push -u origin main
+------

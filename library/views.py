@@ -26,6 +26,7 @@ class BorrowRecordViewSet(ModelViewSet):
     queryset = BorrowRecord.objects.all()
     serializer_class = BorrowRecordSerializer
 
+# borrow book, POST: http://127.0.0.1:8000/borrow/
 @api_view(['POST'])
 def borrow_book(request):
     serializer = BorrowSerializer(data=request.data)
@@ -58,6 +59,8 @@ def borrow_book(request):
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+# return book, POST: at http://127.0.0.1:8000/return/
 @api_view(['POST'])
 def return_book(request): 
     serializer = ReturnSerializer(data=request.data)
@@ -86,3 +89,62 @@ def return_book(request):
         )
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+"""
+4. Request & Response Examples
+
+borrow book:
+POST: http://127.0.0.1:8000/borrow/
+{
+    "book": 1,
+    "member": 1
+}
+
+
+success response:
+HTTP 201 Created
+Allow: POST, OPTIONS
+Content-Type: application/json
+Vary: Accept
+
+{
+    "id": 2,
+    "book": 1,
+    "member": 1,
+    "borrow_date": "2025-07-27",
+    "return_date": null
+}
+
+fail response:
+HTTP 400 Bad Request
+Allow: POST, OPTIONS
+Content-Type: application/json
+Vary: Accept
+
+{
+    "error": "Book is not available for borrowing"
+}
+
+return book: post at http://127.0.0.1:8000/return/
+
+{
+    "borrow_record_id": 2,
+    "return_date": "2025-07-27"
+}
+
+HTTP 200 OK
+Allow: POST, OPTIONS
+Content-Type: application/json
+Vary: Accept
+
+{
+    "id": 2,
+    "book": 1,
+    "member": 1,
+    "borrow_date": "2025-07-27",
+    "return_date": "2025-07-27"
+}
+
+"""
