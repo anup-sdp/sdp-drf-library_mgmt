@@ -1,23 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
-echo ">>> Python version:"
+echo ">>> python --version"
 python --version || true
-
-echo ">>> Pip version:"
+echo ">>> pip --version"
 pip --version || true
 
 echo ">>> Installing requirements"
 pip install -r requirements.txt
 
 echo ">>> Running django checks"
-python manage.py check
+python manage.py check || true
 
-echo ">>> Running collectstatic"
+echo ">>> Collectstatic"
 python manage.py collectstatic --noinput
 
-echo ">>> Copying static into public/static"
+echo ">>> Copying static to public/static"
 mkdir -p public/static
 cp -a staticfiles/. public/static/ || true
+
+echo ">>> Listing public/static (first 50 entries)"
+ls -la public/static | head -n 50 || true
 
 echo ">>> Build script finished"

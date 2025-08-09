@@ -1,14 +1,23 @@
 {
-  "buildCommand": "bash -lc \"set -x && echo '=== PYTHON VERSION ===' && python --version && echo '=== PIP VERSION ===' && pip --version && echo '=== PIP INSTALL START ===' && pip install -r requirements.txt && echo '=== MANAGE.PY CHECK ===' && python manage.py check || true && echo '=== COLLECTSTATIC ===' && python manage.py collectstatic --noinput || true && echo '=== LS PROJECT ROOT ===' && ls -la || true && echo '=== LS STATICFILES ===' && ls -la staticfiles || true && echo '=== COPY TO PUBLIC ===' && mkdir -p public/static && cp -a staticfiles/. public/static/ || true && echo '=== LS PUBLIC/STATIC ===' && ls -la public/static || true\"",
+  "buildCommand": "bash build_files.sh",
   "builds": [
     {
       "src": "library_management/wsgi.py",
       "use": "@vercel/python",
-      "config": { "maxLambdaSize": "50mb", "runtime": "python3.11.3" }
+      "config": {
+        "maxLambdaSize": "50mb",
+        "runtime": "python3.11.3"
+      }
     }
   ],
   "routes": [
-    { "src": "/static/(.*)", "dest": "/public/static/$1" },
-    { "src": "/(.*)", "dest": "library_management/wsgi.py" }
+    {
+      "src": "/static/(.*)",
+      "dest": "/public/static/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "library_management/wsgi.py"
+    }
   ]
 }
