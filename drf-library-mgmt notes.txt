@@ -1,10 +1,11 @@
-for practice phitron sdp,module 22.5
+for practice phitron sdp, module 22.5
 
 drf library management system,
 cmd project root:
 code .
-python -m venv myenv
-myenv\Scripts\activate  -------
+venv with python 3.11:
+"C:\Program Files\Python311\python.exe" -m venv venv311
+venv311\Scripts\activate  -------
 
 pip install django djangorestframework
 pip install django-filter
@@ -25,6 +26,7 @@ python manage.py runserver ---------
 
 library > fixtures > initial_dat.json
 json to db: python manage.py loaddata initial_data.json
+python manage.py loaddata data-v2.json
 db to json: python manage.py dumpdata library.author library.book library.member --indent 2 > library/fixtures/my_data.json
 
 

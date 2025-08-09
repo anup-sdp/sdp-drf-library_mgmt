@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Author, Book, Member, BorrowRecord
+from .models import Author, Book, BorrowRecord
 
 @admin.register(Author)
 class AuthorAdmin(admin.ModelAdmin):
@@ -12,10 +12,7 @@ class BookAdmin(admin.ModelAdmin):
     list_filter = ['availability_status', 'category', 'author']
     search_fields = ['title', 'ISBN']
 
-@admin.register(Member)
-class MemberAdmin(admin.ModelAdmin):
-    list_display = ['name', 'email', 'membership_date']
-    search_fields = ['name', 'email']
+# removed MemberAdmin, now in CustomUser
 
 @admin.register(BorrowRecord)
 class BorrowRecordAdmin(admin.ModelAdmin):

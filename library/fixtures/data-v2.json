@@ -1,0 +1,152 @@
+[
+  {
+    "model": "library.author",
+    "pk": 1,
+    "fields": {
+      "name": "J.K. Rowling",
+      "biography": "British author, best known for writing the Harry Potter fantasy series. The books have won multiple awards and sold more than 500 million copies worldwide."
+    }
+  },
+  {
+    "model": "library.author",
+    "pk": 2,
+    "fields": {
+      "name": "George Orwell",
+      "biography": "English novelist and essayist, journalist and critic. His work is characterized by lucid prose, biting social criticism, opposition to totalitarianism, and outspoken support of democratic socialism."
+    }
+  },
+  {
+    "model": "library.author",
+    "pk": 3,
+    "fields": {
+      "name": "Harper Lee",
+      "biography": "American novelist widely known for To Kill a Mockingbird, published in 1960. Immediately successful, it won the 1961 Pulitzer Prize and has become a classic of modern American literature."
+    }
+  },
+  {
+    "model": "library.author",
+    "pk": 4,
+    "fields": {
+      "name": "Jane Austen",
+      "biography": "English novelist known primarily for her six major novels, which interpret, critique and comment upon the British landed gentry at the end of the 18th century."
+    }
+  },
+  {
+    "model": "library.author",
+    "pk": 5,
+    "fields": {
+      "name": "Stephen King",
+      "biography": "American author of horror, supernatural fiction, suspense, crime, science-fiction, and fantasy novels. His books have sold more than 350 million copies worldwide."
+    }
+  },
+  {
+    "model": "library.book",
+    "pk": 1,
+    "fields": {
+      "title": "Harry Potter and the Philosopher's Stone",
+      "author": 1,
+      "ISBN": "9780747532699",
+      "category": "Fantasy",
+      "availability_status": true
+    }
+  },
+  {
+    "model": "library.book",
+    "pk": 2,
+    "fields": {
+      "title": "Harry Potter and the Chamber of Secrets",
+      "author": 1,
+      "ISBN": "9780747538493",
+      "category": "Fantasy",
+      "availability_status": true
+    }
+  },
+  {
+    "model": "library.book",
+    "pk": 3,
+    "fields": {
+      "title": "1984",
+      "author": 2,
+      "ISBN": "9780451524935",
+      "category": "Dystopian Fiction",
+      "availability_status": true
+    }
+  },
+  {
+    "model": "library.book",
+    "pk": 4,
+    "fields": {
+      "title": "Animal Farm",
+      "author": 2,
+      "ISBN": "9780451526342",
+      "category": "Political Satire",
+      "availability_status": false
+    }
+  },
+  {
+    "model": "library.book",
+    "pk": 5,
+    "fields": {
+      "title": "To Kill a Mockingbird",
+      "author": 3,
+      "ISBN": "9780061120084",
+      "category": "Southern Gothic",
+      "availability_status": true
+    }
+  },
+  {
+    "model": "library.book",
+    "pk": 6,
+    "fields": {
+      "title": "Pride and Prejudice",
+      "author": 4,
+      "ISBN": "9780141439518",
+      "category": "Romance",
+      "availability_status": true
+    }
+  },
+  {
+    "model": "library.book",
+    "pk": 7,
+    "fields": {
+      "title": "Emma",
+      "author": 4,
+      "ISBN": "9780141439587",
+      "category": "Romance",
+      "availability_status": false
+    }
+  },
+  {
+    "model": "library.book",
+    "pk": 8,
+    "fields": {
+      "title": "The Shining",
+      "author": 5,
+      "ISBN": "9780307743657",
+      "category": "Horror",
+      "availability_status": true
+    }
+  },
+  {
+    "model": "library.book",
+    "pk": 9,
+    "fields": {
+      "title": "It",
+      "author": 5,
+      "ISBN": "9781501142970",
+      "category": "Horror",
+      "availability_status": true
+    }
+  },
+  {
+    "model": "library.book",
+    "pk": 10,
+    "fields": {
+      "title": "Harry Potter and the Prisoner of Azkaban",
+      "author": 1,
+      "ISBN": "9780747542155",
+      "category": "Fantasy",
+      "availability_status": false
+    }
+  }
+]

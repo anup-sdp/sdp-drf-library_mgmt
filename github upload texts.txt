@@ -20,3 +20,13 @@ git push -u origin main
 git checkout practice-22.5
 git commit -m "update view"
 git push -u origin practice-22.5
+==================================
+branching:
+git branch  --(show current branch)
+git branch practicemodule-26.5  --(create new branch)
+git checkout practicemodule-26.5  --(make it active branch)
+write code for this branch and commit to save them.
+
+git add .
+git commit -m "practice-26.5_codes"
+git push -u origin practicemodule-26.5

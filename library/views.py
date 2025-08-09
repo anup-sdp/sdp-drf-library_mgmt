@@ -1,41 +1,108 @@
-from django.shortcuts import render
+# library/views.py
 
-# Create your views here.
-from rest_framework import status
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.decorators import api_view
+# library/views.py
+from rest_framework import viewsets, status, permissions
+from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework.permissions import AllowAny, IsAuthenticated, BasePermission
 from rest_framework.response import Response
+from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import get_object_or_404
-from .models import Author, Book, Member, BorrowRecord
-from .serializers import AuthorSerializer, BookSerializer, MemberSerializer, BorrowRecordSerializer, BorrowSerializer, ReturnSerializer    
+from .models import Author, Book, BorrowRecord
+from .serializers import (
+    AuthorSerializer, 
+    BookSerializer, 
+    BorrowRecordSerializer, 
+    BorrowSerializer, 
+    ReturnSerializer
+)
+from users.models import CustomUser, get_user_role
+from users.permissions import IsLibrarian, IsMember, IsAdminUser
 
-
-class AuthorViewSet(ModelViewSet):
+class AuthorViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for managing authors.
+    - Librarians have full access.
+    - Members can only view authors.
+    """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            self.permission_classes = [IsLibrarian]
+        return super().get_permissions()
 
-class BookViewSet(ModelViewSet):
+class BookViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for managing books.
+    
+    ### Permissions:
+    - **Librarians**: Full access (create, read, update, delete)
+    - **Members**: Read-only access (list, retrieve)
+    
+    ### Endpoints:
+    - `GET /books/` - List all books
+    - `POST /books/` - Create a new book (Librarian only)
+    - `GET /books/{id}/` - Retrieve a specific book
+    - `PUT /books/{id}/` - Update a book (Librarian only)
+    - `DELETE /books/{id}/` - Delete a book (Librarian only)
+    """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            self.permission_classes = [IsLibrarian]
+        return super().get_permissions()
 
-class MemberViewSet(ModelViewSet):
-    queryset = Member.objects.all()
-    serializer_class = MemberSerializer
-
-class BorrowRecordViewSet(ModelViewSet):
+class BorrowRecordViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for managing borrow records.
+    - Librarians have full access.
+    - Members can only view their own borrow records.
+    """
     queryset = BorrowRecord.objects.all()
     serializer_class = BorrowRecordSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        user = self.request.user
+        user_role = get_user_role(user)
+        
+        if user_role == 'librarian':
+            return BorrowRecord.objects.all()
+        elif user_role == 'member':
+            return BorrowRecord.objects.filter(member=user)
+        return BorrowRecord.objects.none()  # Return empty queryset for other cases
+    
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            self.permission_classes = [IsLibrarian]
+        return super().get_permissions()
 
-# borrow book, POST: http://127.0.0.1:8000/borrow/
 @api_view(['POST'])
+@permission_classes([IsAuthenticated, IsMember|IsLibrarian])
 def borrow_book(request):
+    """
+    Borrow a book.
+    - Members and librarians can borrow books.
+    """
     serializer = BorrowSerializer(data=request.data)
     if serializer.is_valid():
         book_id = serializer.validated_data['book']
         member_id = serializer.validated_data['member']
         
         book = get_object_or_404(Book, id=book_id)
-        member = get_object_or_404(Member, id=member_id)
+        member = get_object_or_404(CustomUser, id=member_id)
+        
+        # Check if user is a member
+        if not member.is_member:
+            return Response(
+                {'error': 'User is not a member'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
         if not book.availability_status:
             return Response(
@@ -48,7 +115,6 @@ def borrow_book(request):
             member=member
         )
         
-        # Update book availability
         book.availability_status = False
         book.save()
         
@@ -59,10 +125,13 @@ def borrow_book(request):
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-# return book, POST: at http://127.0.0.1:8000/return/
 @api_view(['POST'])
+@permission_classes([IsAuthenticated, IsMember|IsLibrarian])
 def return_book(request): 
+    """
+    Return a book.
+    - Members and librarians can return books.
+    """
     serializer = ReturnSerializer(data=request.data)
     if serializer.is_valid():
         borrow_record_id = serializer.validated_data['borrow_record_id']
@@ -79,7 +148,6 @@ def return_book(request):
         borrow_record.return_date = return_date
         borrow_record.save()
         
-        # Update book availability
         borrow_record.book.availability_status = True
         borrow_record.book.save()
         
@@ -91,7 +159,7 @@ def return_book(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
+# valid for practice 22.5:
 """
 4. Request & Response Examples
 
