@@ -4,9 +4,13 @@
       "src": "library_management/wsgi.py",
       "use": "@vercel/python",
       "config": {"maxLambdaSize": "15mb","runtime": "python3.11.3"}
-    }    
+    }
   ],
-  "routes": [    
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "/public/static/$1"
+    },
     {
       "src": "/(.*)",
       "dest": "library_management/wsgi.py"
