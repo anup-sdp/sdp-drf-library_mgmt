@@ -21,7 +21,7 @@ class Book(models.Model):
         return self.title
 
 """
-# integrated in CustomUser
+# were used for assignment 22.5, now integrated in CustomUser
 class Member(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
@@ -32,8 +32,7 @@ class Member(models.Model):
 """
 
 class BorrowRecord(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    #member = models.ForeignKey(Member, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)    
     member = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # changed
     borrow_date = models.DateField(auto_now_add=True)
     return_date = models.DateField(null=True, blank=True)

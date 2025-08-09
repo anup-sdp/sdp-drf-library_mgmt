@@ -4,6 +4,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.utils import timezone
 from django.contrib.auth.models import AnonymousUser
 from .models import CustomUser, get_user_role
+from django.conf import settings
 
 class CustomUserSerializer(serializers.ModelSerializer):
     """
@@ -30,22 +31,37 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     """
     Serializer for user registration.
     """
-    password = serializers.CharField(write_only=True, validators=[validate_password])
-    password_confirm = serializers.CharField(write_only=True)
+    password = serializers.CharField(
+        write_only=True, 
+        validators=[validate_password],
+        style={'input_type': 'password'}
+    )
+    email = serializers.EmailField(
+        required=True,
+        help_text="Required. A valid email address."
+    )
     
     class Meta:
         model = CustomUser
-        fields = ['username', 'email', 'password', 'password_confirm', 'mobile_no']
+        fields = ['username', 'email', 'password', 'mobile_no']
+        extra_kwargs = {
+            'username': {'required': True},
+            'email': {'required': True},
+        }
     
-    def validate(self, attrs):
-        if attrs['password'] != attrs['password_confirm']:
-            raise serializers.ValidationError("Passwords don't match")
-        return attrs
+    def validate_email(self, value):
+        if CustomUser.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        return value
     
     def create(self, validated_data):
-        validated_data.pop('password_confirm')
-        user = CustomUser.objects.create_user(**validated_data)
-        user.role = 'member'  # Default role for registration
+        # Set is_active=False if email activation is enabled
+        if settings.DJOSER.get('SEND_ACTIVATION_EMAIL', False):
+            user = CustomUser.objects.create_user(is_active=False, **validated_data)
+        else:
+            user = CustomUser.objects.create_user(**validated_data)
+        
+        user.role = 'member'
         user.save()
         return user
 

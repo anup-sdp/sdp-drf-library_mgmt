@@ -57,11 +57,35 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     # function-based views
-    path('borrow/', include('library.urls')),
-    path('return/', include('library.urls')),
+    path('library/', include('library.urls')),
     # djoser endpoints
-    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls')),  # auth/users, auth/users/me 
+	path('auth/', include('djoser.urls.authtoken')),
     path('auth/', include('djoser.urls.jwt')),  # Using Djoser's JWT integration    
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
+
+"""
+account create and activation(with djoser) example:
+from postman,
+create account:
+POST http://127.0.0.1:8000/auth/users/
+body:
+{
+  "username":"anup_barua",
+  "email":"anupbarua30@gmail.com",
+  "password": "aB@12345",
+  "mobile_no":"019133"     
+}
+got an email with link: http://127.0.0.1:8000/activate/Mw/cu9vhx-3712cc6fce077af830eb1d516c0f16aa
+
+activate accout POST http://127.0.0.1:8000/auth/users/activation/
+body:
+{
+  "uid":"Mw",
+  "token":"cu9vhx-3712cc6fce077af830eb1d516c0f16aa"
+}
+
+reply: got 204 no content, and is_active became TRUE in database.
+"""

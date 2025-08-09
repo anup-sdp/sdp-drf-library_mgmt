@@ -8,7 +8,8 @@ USER_ROLES = (('admin', 'Admin'),('librarian', 'Librarian'),('member', 'Member')
 class CustomUser(AbstractUser):
     role = models.CharField(max_length=10, choices=USER_ROLES)
     mobile_no = models.CharField(max_length=15, blank=True)
-    membership_date = models.DateField(null=True, blank=True)
+    membership_date = models.DateField(null=True, blank=True) # only for member role
+    email = models.EmailField(blank=False, unique=True) # override to make required, for email activation
     
     def __str__(self):
         return f"{self.username} ({self.role})"
@@ -30,7 +31,7 @@ class CustomUser(AbstractUser):
             self.membership_date = timezone.now().date()
         super().save(*args, **kwargs)
 
-# to handle AnonymousUser
+# utility function to handle AnonymousUser in swagger
 def get_user_role(user):
     if isinstance(user, AnonymousUser):
         return None

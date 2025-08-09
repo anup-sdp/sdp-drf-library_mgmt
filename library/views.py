@@ -1,6 +1,4 @@
 # library/views.py
-
-# library/views.py
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import AllowAny, IsAuthenticated, BasePermission
@@ -8,13 +6,7 @@ from rest_framework.response import Response
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import get_object_or_404
 from .models import Author, Book, BorrowRecord
-from .serializers import (
-    AuthorSerializer, 
-    BookSerializer, 
-    BorrowRecordSerializer, 
-    BorrowSerializer, 
-    ReturnSerializer
-)
+from .serializers import AuthorSerializer, BookSerializer, BorrowRecordSerializer, BorrowSerializer, ReturnSerializer
 from users.models import CustomUser, get_user_role
 from users.permissions import IsLibrarian, IsMember, IsAdminUser
 
@@ -81,85 +73,65 @@ class BorrowRecordViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             self.permission_classes = [IsLibrarian]
         return super().get_permissions()
+    
+"""
+^
+in swagger it shows endpoints: 
+GET /borrow-records/
+POST /borrow-records/
+GET /borrow-records/{id}/
+PUT /borrow-records/{id}/
+PATCH /borrow-records/{id}/
+DELETE /borrow-records/{id}/
+"""	
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsMember|IsLibrarian])
 def borrow_book(request):
     """
     Borrow a book.
-    - Members and librarians can borrow books.
+    - Members can borrow books.
     """
     serializer = BorrowSerializer(data=request.data)
     if serializer.is_valid():
         book_id = serializer.validated_data['book']
-        member_id = serializer.validated_data['member']
-        
+        member_id = serializer.validated_data['member']        
         book = get_object_or_404(Book, id=book_id)
-        member = get_object_or_404(CustomUser, id=member_id)
-        
-        # Check if user is a member
-        if not member.is_member:
-            return Response(
-                {'error': 'User is not a member'}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
+        member = get_object_or_404(CustomUser, id=member_id)        
+        if not member.is_member: # only member allowed
+            return Response({'error': 'User is not a member'}, status=status.HTTP_400_BAD_REQUEST)        
         if not book.availability_status:
-            return Response(
-                {'error': 'Book is not available for borrowing'}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        borrow_record = BorrowRecord.objects.create(
-            book=book,
-            member=member
-        )
-        
+            return Response({'error': 'Book is not available for borrowing'}, status=status.HTTP_400_BAD_REQUEST)        
+        borrow_record = BorrowRecord.objects.create( book=book,member=member)        
         book.availability_status = False
-        book.save()
-        
-        return Response(
-            BorrowRecordSerializer(borrow_record).data, 
-            status=status.HTTP_201_CREATED
-        )
-    
+        book.save()        
+        return Response(BorrowRecordSerializer(borrow_record).data, status=status.HTTP_201_CREATED)    
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsMember|IsLibrarian])
 def return_book(request): 
     """
     Return a book.
-    - Members and librarians can return books.
+    - Members can return books.
     """
     serializer = ReturnSerializer(data=request.data)
     if serializer.is_valid():
         borrow_record_id = serializer.validated_data['borrow_record_id']
-        return_date = serializer.validated_data['return_date']
-        
-        borrow_record = get_object_or_404(BorrowRecord, id=borrow_record_id)
-        
+        return_date = serializer.validated_data['return_date']        
+        borrow_record = get_object_or_404(BorrowRecord, id=borrow_record_id)        
         if borrow_record.return_date is not None:
-            return Response(
-                {'error': 'Book has already been returned'}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
+            return Response({'error': 'Book has already been returned'}, status=status.HTTP_400_BAD_REQUEST)
         borrow_record.return_date = return_date
-        borrow_record.save()
-        
+        borrow_record.save()        
         borrow_record.book.availability_status = True
-        borrow_record.book.save()
-        
-        return Response(
-            BorrowRecordSerializer(borrow_record).data, 
-            status=status.HTTP_200_OK
-        )
-    
+        borrow_record.book.save()        
+        return Response(BorrowRecordSerializer(borrow_record).data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# valid for practice 22.5:
+# was valid for practice 22.5:
 """
 4. Request & Response Examples
 

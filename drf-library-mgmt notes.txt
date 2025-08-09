@@ -25,7 +25,8 @@ admin-admin@example.com-1234
 python manage.py runserver ---------
 
 library > fixtures > initial_dat.json
-json to db: python manage.py loaddata initial_data.json
+json to db: 
+python manage.py loaddata initial_data.json
 python manage.py loaddata data-v2.json
 db to json: python manage.py dumpdata library.author library.book library.member --indent 2 > library/fixtures/my_data.json
 

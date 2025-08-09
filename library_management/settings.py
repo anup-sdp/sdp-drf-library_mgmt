@@ -1,4 +1,4 @@
-# project for practice module 22.5, sdp, phitron.
+# project for practice module 22.5, 26.5 sdp, phitron.
 # question: https://docs.google.com/document/d/11UZxm2wdZPWSgmuRLw2KSkLZ1L42YuO6lwV5FnR4bmo/edit?tab=t.0#heading=h.9z6bxmusqj82
 
 """
@@ -13,6 +13,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
@@ -28,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [".vercel.app",'localhost', '127.0.0.1'] # --- must add when DEBUG = False
 
@@ -50,19 +51,22 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'djoser',
     'rest_framework_simplejwt',
-	'drf_yasg' # yasg: Yet Another Swagger Generator. https://drf-yasg.readthedocs.io/en/stable/readme.html
+	'drf_yasg', # yasg: Yet Another Swagger Generator. https://drf-yasg.readthedocs.io/en/stable/readme.html
+	"corsheaders", # for later react part, https://pypi.org/project/django-cors-headers/
 ]
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+	'whitenoise.middleware.WhiteNoiseMiddleware', # ---
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+	"corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = 'library_management.urls'
@@ -88,6 +92,7 @@ WSGI_APPLICATION = 'library_management.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+"""
 # initial default database
 DATABASES = {
     'default': {
@@ -108,7 +113,7 @@ DATABASES = {
         'PORT': config('port')
     }
 }
-"""
+
 
 
 # Password validation
@@ -145,7 +150,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
+# Static files settings
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Media files settings
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -193,7 +206,7 @@ DJOSER = {
     'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
     'USERNAME_RESET_CONFIRM_URL': 'username/reset/confirm/{uid}/{token}',
     'ACTIVATION_URL': 'activate/{uid}/{token}',
-    'SEND_ACTIVATION_EMAIL': True,
+    'SEND_ACTIVATION_EMAIL': True,  # ---- if False auto activation of user.
     'SERIALIZERS': {
         'user_create': 'users.serializers.UserRegistrationSerializer',
         'user': 'users.serializers.CustomUserSerializer',
@@ -216,3 +229,30 @@ SWAGGER_SETTINGS = {
     'USE_SESSION_AUTH': False,
     'JSON_EDITOR': True,
 }
+
+# CORS Settings
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # React development server
+	"http://localhost:5173", # Vite’s default port:
+	"http://127.0.0.1:3000",
+	"http://127.0.0.1:8000"
+    #"https://your-react-app.vercel.app",  # Your Vercel deployment --------------------
+]
+
+# For more permissive CORS during development
+CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only allow all origins in DEBUG mode
+
+# Allow credentials (cookies, authorization headers, etc.)
+CORS_ALLOW_CREDENTIALS = True
+
+
+# for sending email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_BACKEND = 'users.email_backends.CustomEmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')  # sender's email-id
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD') # password associated with above email-id/google app password (not the regular password)
+
+# DOMAIN = 'localhost:8000'  # Change to your actual domain in production
