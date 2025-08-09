@@ -1,11 +1,16 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Install requirements
+echo ">>> Installing requirements"
 pip install -r requirements.txt
 
-# Collect static files
+echo ">>> Running collectstatic"
 python manage.py collectstatic --noinput
 
-# Move them to Vercel's public folder so they can be served
+echo ">>> Copying collected static into public/static for Vercel"
+# Create public/static and copy
 mkdir -p public/static
-cp -r staticfiles/* public/static/
+# use cp -a to preserve structure; if cp fails for empty, continue
+cp -a staticfiles/. public/static/ || true
+
+echo ">>> Done build script"

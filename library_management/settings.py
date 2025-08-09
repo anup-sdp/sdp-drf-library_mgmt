@@ -87,7 +87,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'library_management.wsgi.app' # changed from application to app for vercel, here and in wsgi file
+WSGI_APPLICATION = 'library_management.wsgi.application' # changed from application to app for vercel, here and in wsgi file
 
 
 # Database
@@ -154,7 +154,8 @@ USE_TZ = True
 # Static files settings
 
 STATIC_URL = '/static/' 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+#STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = BASE_DIR / "staticfiles" 
 #STATIC_FILES_DIR = BASE_DIR / 'static' # if had static files in apps
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
