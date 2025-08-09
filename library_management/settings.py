@@ -86,7 +86,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'library_management.wsgi.application'
+WSGI_APPLICATION = 'library_management.wsgi.app' # changed from application to app for vercel, here and in wsgi file
 
 
 # Database
