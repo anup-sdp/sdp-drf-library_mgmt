@@ -1,5 +1,5 @@
 {
-  "buildCommand": "bash -lc \"python --version && pip --version && pip install -r requirements.txt && python manage.py check && python manage.py collectstatic --noinput && mkdir -p public/static && cp -a staticfiles/. public/static/\"",
+  "buildCommand": "bash -lc \"set -x && echo '=== PYTHON VERSION ===' && python --version && echo '=== PIP VERSION ===' && pip --version && echo '=== PIP INSTALL START ===' && pip install -r requirements.txt && echo '=== MANAGE.PY CHECK ===' && python manage.py check || true && echo '=== COLLECTSTATIC ===' && python manage.py collectstatic --noinput || true && echo '=== LS PROJECT ROOT ===' && ls -la || true && echo '=== LS STATICFILES ===' && ls -la staticfiles || true && echo '=== COPY TO PUBLIC ===' && mkdir -p public/static && cp -a staticfiles/. public/static/ || true && echo '=== LS PUBLIC/STATIC ===' && ls -la public/static || true\"",
   "builds": [
     {
       "src": "library_management/wsgi.py",
