@@ -37,6 +37,7 @@ ALLOWED_HOSTS = [".vercel.app",'localhost', '127.0.0.1'] # --- must add when DEB
 # Application definition
 
 INSTALLED_APPS = [
+	"whitenoise.runserver_nostatic", # ---
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -52,7 +53,7 @@ INSTALLED_APPS = [
     'djoser',
     'rest_framework_simplejwt',
 	'drf_yasg', # yasg: Yet Another Swagger Generator. https://drf-yasg.readthedocs.io/en/stable/readme.html
-	"corsheaders", # for later react part, https://pypi.org/project/django-cors-headers/
+	"corsheaders", # for later react part, https://pypi.org/project/django-cors-headers/	
 ]
 
 AUTH_USER_MODEL = 'users.CustomUser'
@@ -152,9 +153,9 @@ USE_TZ = True
 
 # Static files settings
 
-STATIC_URL = 'static/' 
+STATIC_URL = '/static/' 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATIC_FILES_DIR = BASE_DIR / 'static'
+#STATIC_FILES_DIR = BASE_DIR / 'static' # if had static files in apps
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files settings
