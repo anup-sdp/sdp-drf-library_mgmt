@@ -1,5 +1,5 @@
 {
-  "buildCommand": "./build_files.sh",
+  "buildCommand": "bash -lc \"python --version && pip --version && pip install -r requirements.txt && python manage.py check && python manage.py collectstatic --noinput && mkdir -p public/static && cp -a staticfiles/. public/static/\"",
   "builds": [
     {
       "src": "library_management/wsgi.py",
@@ -8,13 +8,7 @@
     }
   ],
   "routes": [
-    {
-      "src": "/static/(.*)",
-      "dest": "/public/static/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "library_management/wsgi.py"
-    }
+    { "src": "/static/(.*)", "dest": "/public/static/$1" },
+    { "src": "/(.*)", "dest": "library_management/wsgi.py" }
   ]
 }

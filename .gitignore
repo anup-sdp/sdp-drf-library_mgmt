@@ -158,7 +158,7 @@ venv/
 # !/migrations/**/
 
 # Static files collected
-# staticfiles/
+staticfiles/
 static_collected/
 
 # Media files

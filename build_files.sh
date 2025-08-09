@@ -1,16 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo ">>> Python version:"
+python --version || true
+
+echo ">>> Pip version:"
+pip --version || true
+
 echo ">>> Installing requirements"
 pip install -r requirements.txt
+
+echo ">>> Running django checks"
+python manage.py check
 
 echo ">>> Running collectstatic"
 python manage.py collectstatic --noinput
 
-echo ">>> Copying collected static into public/static for Vercel"
-# Create public/static and copy
+echo ">>> Copying static into public/static"
 mkdir -p public/static
-# use cp -a to preserve structure; if cp fails for empty, continue
 cp -a staticfiles/. public/static/ || true
 
-echo ">>> Done build script"
+echo ">>> Build script finished"
