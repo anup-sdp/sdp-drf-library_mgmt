@@ -109,7 +109,7 @@ DATABASES = {
 }
 
 """
-# supabase postgresql database:
+# supabase postgresql database: anupbarau41@gmail.com's Org
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',

@@ -4,6 +4,9 @@ from django.contrib.auth.models import AbstractUser, AnonymousUser
 from django.utils import timezone
 
 USER_ROLES = (('admin', 'Admin'),('librarian', 'Librarian'),('member', 'Member'))
+# here admin is superuser has full power, can assign role (member/librarian) to registered users
+# librarian can crud books, authors, borrow book themselves
+# member can view books, borrow and return books
 
 class CustomUser(AbstractUser):
     role = models.CharField(max_length=10, choices=USER_ROLES)

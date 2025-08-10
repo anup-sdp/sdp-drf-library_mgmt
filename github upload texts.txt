@@ -34,4 +34,11 @@ git push -u origin practicemodule-26.5
 git checkout main
 git merge practicemodule-26.5
 git push -u origin main
+---
+git add .
+git commit -m "practice-26.5 final"
+git push -u origin main
+
+git checkout practicemodule-26.5
+git merge main
 
