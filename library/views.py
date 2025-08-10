@@ -9,6 +9,8 @@ from .models import Author, Book, BorrowRecord
 from .serializers import AuthorSerializer, BookSerializer, BorrowRecordSerializer, BorrowSerializer, ReturnSerializer
 from users.models import CustomUser, get_user_role
 from users.permissions import IsLibrarian, IsMember, IsAdminUser
+from drf_yasg.utils import swagger_auto_schema
+from django.utils import timezone
 
 class AuthorViewSet(viewsets.ModelViewSet):
     """
@@ -85,106 +87,144 @@ PATCH /borrow-records/{id}/
 DELETE /borrow-records/{id}/
 """	
 
+
+@swagger_auto_schema(
+    method='post',
+    request_body=BorrowSerializer,
+    examples={
+        "application/json": {
+            "book": 1
+        }
+    }
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsMember|IsLibrarian])
 def borrow_book(request):
     """
-    Borrow a book.
-    - Members can borrow books.
+    Borrow a book from the library.
+    
+    ### Request URL:
+    ```
+    POST /library/borrow/
+    ```
+    
+    ### Request Body Example:
+    ```json
+    {
+        "book": 1
+    }
+    ```
+    
+    ### Parameters:
+    - **book** (integer, required): ID of the book to borrow
+    
+    ### Notes:
+    - Only members and librarians can borrow books
+    - The authenticated user will be automatically set as the borrower
+    - Borrow date is automatically set to current date
     """
     serializer = BorrowSerializer(data=request.data)
     if serializer.is_valid():
-        book_id = serializer.validated_data['book']
-        member_id = serializer.validated_data['member']        
+        book_id = serializer.validated_data['book']        
         book = get_object_or_404(Book, id=book_id)
-        member = get_object_or_404(CustomUser, id=member_id)        
-        if not member.is_member: # only member allowed
-            return Response({'error': 'User is not a member'}, status=status.HTTP_400_BAD_REQUEST)        
+        member = request.user
+        if not member.is_member or member.is_librarian:
+            return Response({'error': 'Only a member or librarian can borrow books'}, status=status.HTTP_400_BAD_REQUEST)
         if not book.availability_status:
-            return Response({'error': 'Book is not available for borrowing'}, status=status.HTTP_400_BAD_REQUEST)        
-        borrow_record = BorrowRecord.objects.create( book=book,member=member)        
+            return Response({'error': 'Book is not available for borrowing'}, status=status.HTTP_400_BAD_REQUEST)
+        borrow_record = BorrowRecord.objects.create(book=book, member=member)        
         book.availability_status = False
         book.save()        
         return Response(BorrowRecordSerializer(borrow_record).data, status=status.HTTP_201_CREATED)    
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+@swagger_auto_schema(
+    method='post',
+    request_body=ReturnSerializer,
+    examples={
+        "application/json": {
+            "borrow_record_id": 5
+        }
+    }
+)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsMember|IsLibrarian])
 def return_book(request): 
     """
-    Return a book.
-    - Members can return books.
+    Return a borrowed book to the library.
+    
+    ### Request URL:
+    ```
+    POST /library/return/
+    ```
+    
+    ### Request Body Example:
+    ```json
+    {
+        "borrow_record_id": 5
+    }
+    ```
+    
+    ### Parameters:
+    - **borrow_record_id** (integer, required): ID of the borrow record to return
+    
+    ### Notes:
+    - Only members and librarians can return books
+    - Return date is automatically set to current date
+    - Members can only return their own borrowed books
+    - Librarians can return any borrowed book
     """
     serializer = ReturnSerializer(data=request.data)
     if serializer.is_valid():
-        borrow_record_id = serializer.validated_data['borrow_record_id']
-        return_date = serializer.validated_data['return_date']        
+        borrow_record_id = serializer.validated_data['borrow_record_id']        
         borrow_record = get_object_or_404(BorrowRecord, id=borrow_record_id)        
         if borrow_record.return_date is not None:
             return Response({'error': 'Book has already been returned'}, status=status.HTTP_400_BAD_REQUEST)
-        borrow_record.return_date = return_date
-        borrow_record.save()        
+        if request.user.role == 'member' and borrow_record.member != request.user:
+            return Response({'error': 'members can only return their own borrowed books'}, status=status.HTTP_403_FORBIDDEN)
+        borrow_record.return_date = timezone.now().date()
+        borrow_record.save()
         borrow_record.book.availability_status = True
-        borrow_record.book.save()        
+        borrow_record.book.save()
+        
         return Response(BorrowRecordSerializer(borrow_record).data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# was valid for practice 22.5:
+
 """
-4. Request & Response Examples
-
+while authenticated,
 borrow book:
-POST: http://127.0.0.1:8000/borrow/
+POST http://127.0.0.1:8000/library/borrow/
+request body:
 {
-    "book": 1,
-    "member": 1
+    "book": 5
 }
-
-
-success response:
-HTTP 201 Created
-Allow: POST, OPTIONS
-Content-Type: application/json
-Vary: Accept
-
+response:
+201 Created
 {
-    "id": 2,
-    "book": 1,
-    "member": 1,
-    "borrow_date": "2025-07-27",
+    "id": 1,
+    "book": 5,
+    "member": 3,
+    "borrow_date": "2025-08-10",
     "return_date": null
 }
 
-fail response:
-HTTP 400 Bad Request
-Allow: POST, OPTIONS
-Content-Type: application/json
-Vary: Accept
-
+return book:
+POST http://127.0.0.1:8000/library/return/
+request body:
 {
-    "error": "Book is not available for borrowing"
+    "borrow_record_id": 1
 }
-
-return book: post at http://127.0.0.1:8000/return/
-
+response:
+200 OK
 {
-    "borrow_record_id": 2,
-    "return_date": "2025-07-27"
+    "id": 1,
+    "book": 5,
+    "member": 3,
+    "borrow_date": "2025-08-10",
+    "return_date": "2025-08-10"
 }
-
-HTTP 200 OK
-Allow: POST, OPTIONS
-Content-Type: application/json
-Vary: Accept
-
-{
-    "id": 2,
-    "book": 1,
-    "member": 1,
-    "borrow_date": "2025-07-27",
-    "return_date": "2025-07-27"
-}
-
 """

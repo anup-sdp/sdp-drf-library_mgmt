@@ -30,5 +30,12 @@ python manage.py loaddata initial_data.json
 python manage.py loaddata data-v2.json
 db to json: python manage.py dumpdata library.author library.book library.member --indent 2 > library/fixtures/my_data.json
 
+users:
+admin-pw:1234 (role:admin)
+anup-barua-pw:aB@12345 (role:member)
+
 whitenoise
 python manage.py collectstatic
+for vercel deploy, in wsgi.py use app instead of application, 
+in settings WSGI_APPLICATION = 'library_management.wsgi.app' # instead of application
+also push staticfiles folder to github, vercel was not being able to generate it itself.

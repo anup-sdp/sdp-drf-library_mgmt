@@ -21,14 +21,14 @@ class BorrowRecordSerializer(serializers.ModelSerializer):
     member = serializers.PrimaryKeyRelatedField(read_only=True)  # Or use a nested serializer
     class Meta:
         model = BorrowRecord
-        fields = ['id', 'book', 'member', 'borrow_date', 'return_date']		
+        fields = ['id', 'book', 'member', 'borrow_date', 'return_date']
 
 
 class BorrowSerializer(serializers.Serializer):
     book = serializers.IntegerField()
-    member = serializers.IntegerField()  # This will be CustomUser ID
+
 
 class ReturnSerializer(serializers.Serializer):
-    borrow_record_id = serializers.IntegerField()
-    return_date = serializers.DateField()
+    borrow_record_id = serializers.IntegerField(help_text="ID of the borrow record to return")
+
     
