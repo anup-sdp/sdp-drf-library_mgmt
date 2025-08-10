@@ -21,6 +21,11 @@ from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / "staticfiles" # ---
+STATIC_FILES_DIR = BASE_DIR / 'static'
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -154,13 +159,14 @@ USE_TZ = True
 
 # Static files settings
 
+"""
 STATIC_URL = '/static/' 
 #STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_ROOT = BASE_DIR / "staticfiles" 
 # STATICFILES_DIRS = [BASE_DIR / "static",] #  if had static files in apps
 if not DEBUG:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
+"""
 # Media files settings
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
